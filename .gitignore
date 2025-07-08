@@ -1,0 +1,74 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build artifacts
+build/
+dist/
+out/
+artifacts/
+cache/
+
+# Hardhat files
+cache/
+artifacts/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Remix IDE specific
+.deps/
+.workspaces/
+
+# Gas usage reports
+gas-report.txt
+
+# Contract flattened files
+flattened/
+flat/
+
+# Coverage reports
+coverage/
+coverage.json
+
+# Deployment artifacts
+deployments/
+deployment-*.json
+
+#local doc
+doc.local/
