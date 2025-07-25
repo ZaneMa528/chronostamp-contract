@@ -60,8 +60,39 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
     }
 
     // -------Claim Function-------
-    // Todo: Implement the claim function to allow users to claim badges using a signature and nonce.
+    /**
+     * @dev Allows a user to claim a badge by providing a valid signature and nonce.
+     * @param signature The signature from the trusted signer.
+     * @param nonce A unique nonce to prevent replay attacks.
+     */
+    function claim(bytes memory signature, bytes32 nonce) external override {
+        // Ensure the nonce has not been used
+        require(!usedNonces[nonce], "ChronoStamp: Nonce already used");
 
+        // Flag the nonce as used
+        usedNonces[nonce] = true;
+
+        // build the message hash
+        // Format: keccak256(abi.encodePacked(msg.sender, nonce))
+        bytes32 messageHash = keccak256(abi.encodePacked(msg.sender, nonce));
+        // Signature verificatio using ECDSA
+        bytes32 ethSignedMessageHash = ECDSA.toEthSignedMessageHash(messageHash);
+
+        // Recover the signer address from the signature
+        address signer = ECDSA.recover(ethSignedMessageHash, signature);
+
+        // Ensure the signer is the trusted signer
+        require(signer == trustedSigner, "ChronoStamp: Invalid signature");
+
+        // Mint the new badge (NFT)
+        uint256 tokenIdToMint = nextTokenId;
+        _safeMint(msg.sender, tokenIdToMint);
+
+        // Increment the token ID for the next mint and emit event
+        nextTokenId++;
+        emit BadgeClaimed(msg.sender, tokenIdToMint);
+    }
+    
     // --- Internal Functions ---
     function _requireOwned(uint256 tokenId) internal view {
         require(_exists(tokenId), "Token does not exist");
