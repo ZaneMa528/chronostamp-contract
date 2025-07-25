@@ -21,19 +21,29 @@ contract ChronoStampFactory {
         string memory baseTokenURI,
         address trustedSigner
     ) public returns (address) {
-    require(msg.sender == owner, "Only the owner can create new badges");
-    require(bytes(baseTokenURI).length > 0, "Base token URI cannot be empty");
-    require(trustedSigner != address(0), "Trusted signer address cannot be zero");
+        require(msg.sender == owner, "Only the owner can create new badges");
+        require(bytes(baseTokenURI).length > 0, "Base token URI cannot be empty");
+        require(trustedSigner != address(0), "Trusted signer address cannot be zero");
 
-    // Deploy a new ChronoStamp contract
-    ChronoStamp badge = new ChronoStamp();
+        // Define name and symbol (could later be extended as parameters)
+        string memory name = "ChronoStamp";
+        string memory symbol = "CS";
 
-    // emit event to notify frontend
-    emit BadgeCreated(address(badge));
+        // Deploy a new ChronoStamp contract
+        ChronoStamp badge = new ChronoStamp(
+            name,
+            symbol,
+            msg.sender,
+            trustedSigner,
+            baseTokenURI
+        );
 
-    // TO DO: let Person D manage the badge array
+        // Emit event to notify frontend
+        emit BadgeCreated(address(badge));
 
-    // Return the address of the newly created badge contract
-    return address(badge);
+        // TO DO: let Person D manage the badge array
+
+        // Return the address of the newly created badge contract
+        return address(badge);
     }
 }
