@@ -25,4 +25,36 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
     // Events
     event BadgeClaimed(address indexed recipient, uint256 indexed tokenId);
 
+    // Constructor
+    /**
+     * @dev Initializes the contract with a base URI and a trusted signer.
+     * @param _name The name of NFT collection.
+     * @param _symbol The symbol of NFT collection.
+     * @param _initialOwner The initial owner of the contract.
+     * @param _trustedSigner The address of the trusted signer.
+     * @param _baseTokenURI The base URI for the token metadata.
+     */
+     constructor(
+        string memory _name,
+        string memory _symbol,
+        address _initialOwner,
+        address _trustedSigner,
+        string memory _baseTokenURI
+    ) ERC721(_name, _symbol) Ownable(_initialOwner) {
+        trustedSigner = _trustedSigner;
+        baseTokenURI = _baseTokenURI;
+        nextTokenId = 1; // Start token IDs from 1
+    }
+
+    // -------NFT Functions-------
+
+    /**
+     * @dev return the token URI for a given token ID.
+     */
+    function tokenURI(uint256 tokenId) public view override returns (string memory) {
+        // Ensure the token exists
+        _requireOwned(tokenId);
+        // Return the full token URI
+        return string(abi.encodePacked(baseTokenURI, "/", _toString(tokenId)));
+    }
 }
