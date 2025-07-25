@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./interfaces/IChronoStamp.sol";
 
 contract ChronoStamp is ERC721, Ownable, IChronoStamp {
-    
+
     // State variables
     address public immutable trustedSigner;
 
@@ -92,7 +92,7 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         nextTokenId++;
         emit BadgeClaimed(msg.sender, tokenIdToMint);
     }
-    
+
     // --- Internal Functions ---
     function _requireOwned(uint256 tokenId) internal view {
         require(_exists(tokenId), "Token does not exist");

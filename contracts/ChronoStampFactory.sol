@@ -2,8 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "./ChronoStamp.sol";
+import "./interfaces/IChronoStampFactory.sol";
 
-contract ChronoStampFactory {
+contract ChronoStampFactory is IChronoStampFactory {
     address public owner;
 
     // To notify frontend when a new badge is created
