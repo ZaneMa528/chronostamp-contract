@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 // IChronoStamp.sol
 import "./IChronoStamp.sol";
@@ -57,4 +58,22 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         // Return the full token URI
         return string(abi.encodePacked(baseTokenURI, "/", _toString(tokenId)));
     }
+
+    // -------Claim Function-------
+    // Todo: Implement the claim function to allow users to claim badges using a signature and nonce.
+
+    // --- Internal Functions ---
+    function _requireOwned(uint256 tokenId) internal view {
+        require(_exists(tokenId), "Token does not exist");
+
+        require(ownerOf(tokenId) != address(0), "Token is not owned");
+
+        require(tokenId > 0 && tokenId < nextTokenId, "Invalid token ID");
+    }
+
+    function _toString(uint256 value) internal pure returns (string memory) {
+        // Convert uint256 to string using OpenZeppelin's Strings library
+        return Strings.toString(value);
+    }
+
 }
