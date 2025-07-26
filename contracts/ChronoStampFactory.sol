@@ -26,7 +26,13 @@ contract ChronoStampFactory {
     require(trustedSigner != address(0), "Trusted signer address cannot be zero");
 
     // Deploy a new ChronoStamp contract
-    ChronoStamp badge = new ChronoStamp();
+    ChronoStamp badge = new ChronoStamp(
+        "ChronoStamp Badge",
+        "CSB",
+        msg.sender, // Initial owner is the factory creator
+        trustedSigner,
+        baseTokenURI
+    );
 
     // emit event to notify frontend
     emit BadgeCreated(address(badge));
