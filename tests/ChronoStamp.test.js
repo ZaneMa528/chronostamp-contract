@@ -25,7 +25,7 @@ describe("ChronoStamp Contract", function () {
         const symbol = "CSB";
         const initialOwner = owner.address;
         const signerAddress = trustedSigner.address;
-        const baseURI = "https://api.example.com/meta/";
+        const baseURI = "https://api.example.com/meta";
         
         chronoStamp = await ChronoStamp.deploy(name, symbol, initialOwner, signerAddress, baseURI);
         // Wait for the deployment to complete
@@ -38,7 +38,7 @@ describe("ChronoStamp Contract", function () {
             // Use expect and await to verify state variables
             const name = "ChronoStamp Badge";
             const symbol = "CSB";
-            const baseURI = "https://api.example.com/meta/";
+            const baseURI = "https://api.example.com/meta";
 
             expect(await chronoStamp.name()).to.equal(name);
             expect(await chronoStamp.symbol()).to.equal(symbol);
@@ -81,7 +81,7 @@ describe("ChronoStamp Contract", function () {
             expect(await chronoStamp.ownerOf(1)).to.equal(user1.address);
 
             // c) Verify that the tokenURI is correct
-            const expectedURI = "https://api.example.com/meta//1";
+            const expectedURI = "https://api.example.com/meta/1";
             expect(await chronoStamp.tokenURI(1)).to.equal(expectedURI);
         });
 
