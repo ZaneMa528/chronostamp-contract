@@ -157,7 +157,40 @@ describe("ChronoStampFactory Contract", function () {
         });
     });
 
-    // --- TODO: Fifth test case: Pagination Functionality and more---
+     // --- Fifth test case: Pagination Functionality ---
+    describe("Pagination Functionality", function () {
+        beforeEach(async function () {
+            for (let i = 1; i <= 5; i++) {
+                await factory.createNewBadge(
+                    `https://api.example.com/metadata/${i}`,
+                    trustedSigner.address
+                );
+            }
+        });
+
+        it("should return first 2 badges for offset=0, limit=2", async function () {
+            const slice = await factory.getBadgesPaginated(0, 2);
+            expect(slice.length).to.equal(2);
+            const all = await factory.getBadgesPaginated(0, 5);
+            expect(slice[0]).to.equal(all[0]);
+            expect(slice[1]).to.equal(all[1]);
+        });
+
+        it("should return remaining badges when limit exceeds bounds", async function () {
+            const slice = await factory.getBadgesPaginated(3, 10);
+            expect(slice.length).to.equal(2);
+        });
+
+        it("should return empty array if offset >= total", async function () {
+            const slice = await factory.getBadgesPaginated(5, 1);
+            expect(slice.length).to.equal(0);
+        });
+
+        it("should return empty array if limit is zero", async function () {
+            const slice = await factory.getBadgesPaginated(0, 0);
+            expect(slice.length).to.equal(0);
+        });
+    });
 
 
 });
