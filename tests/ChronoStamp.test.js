@@ -138,4 +138,8 @@ describe("ChronoStamp Contract", function () {
 
     });
 
+<<<<<<< HEAD
 });
+=======
+});
+>>>>>>> feature/poap_factory
