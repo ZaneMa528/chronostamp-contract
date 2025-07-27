@@ -7,6 +7,8 @@ interface IChronoStampFactory {
 
     // Functions
     function createNewBadge(
+        string memory name,
+        string memory symbol,
         string memory baseTokenURI,
         address trustedSigner
     ) external returns (address);

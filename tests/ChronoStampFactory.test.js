@@ -46,11 +46,13 @@ describe("ChronoStampFactory Contract", function () {
         
         it("Should allow owner to create a new badge with valid parameters", async function () {
             // --- 1. Prepare the parameters ---
+            const name = "Test Badge";
+            const symbol = "TB";
             const baseTokenURI = "https://api.example.com/metadata";
             const signerAddress = trustedSigner.address;
 
             // --- 2. Execute the badge creation ---
-            const createTx = factory.createNewBadge(baseTokenURI, signerAddress);
+            const createTx = factory.createNewBadge(name, symbol, baseTokenURI, signerAddress);
 
             // --- 3. Verify the results ---
             // a) Verify that the event was emitted correctly
@@ -68,10 +70,12 @@ describe("ChronoStampFactory Contract", function () {
 
         it("Should create ChronoStamp with correct constructor parameters", async function () {
             // --- 1. Create a new badge ---
+            const name = "Custom Badge";
+            const symbol = "CB";
             const baseTokenURI = "https://api.example.com/metadata";
             const signerAddress = trustedSigner.address;
             
-            const createTx = await factory.createNewBadge(baseTokenURI, signerAddress);
+            const createTx = await factory.createNewBadge(name, symbol, baseTokenURI, signerAddress);
             const receipt = await createTx.wait();
 
             // --- 2. Extract the badge address from the event ---
@@ -84,8 +88,8 @@ describe("ChronoStampFactory Contract", function () {
             const ChronoStamp = await ethers.getContractFactory("ChronoStamp");
             const badge = ChronoStamp.attach(badgeAddress);
 
-            expect(await badge.name()).to.equal("ChronoStamp Badge");
-            expect(await badge.symbol()).to.equal("CSB");
+            expect(await badge.name()).to.equal("Custom Badge");
+            expect(await badge.symbol()).to.equal("CB");
             expect(await badge.owner()).to.equal(owner.address);
             expect(await badge.trustedSigner()).to.equal(signerAddress);
             expect(await badge.baseTokenURI()).to.equal(baseTokenURI);
@@ -94,12 +98,12 @@ describe("ChronoStampFactory Contract", function () {
         it("Should allow creating multiple badges", async function () {
             // --- 1. Create first badge ---
             const baseTokenURI1 = "https://api.example.com/metadata/1";
-            await factory.createNewBadge(baseTokenURI1, trustedSigner.address);
+            await factory.createNewBadge("Badge 1", "B1", baseTokenURI1, trustedSigner.address);
             expect(await factory.getTotalBadges()).to.equal(1);
 
             // --- 2. Create second badge ---
             const baseTokenURI2 = "https://api.example.com/metadata/2";
-            await factory.createNewBadge(baseTokenURI2, addr1.address);
+            await factory.createNewBadge("Badge 2", "B2", baseTokenURI2, addr1.address);
             expect(await factory.getTotalBadges()).to.equal(2);
 
             // --- 3. Verify both badges exist in the array ---
@@ -117,7 +121,7 @@ describe("ChronoStampFactory Contract", function () {
             
             // Key point: addr1 (not the owner) tries to create a badge
             await expect(
-                factory.connect(addr1).createNewBadge(baseTokenURI, trustedSigner.address)
+                factory.connect(addr1).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address)
             ).to.be.revertedWith("Only the owner can create new badges");
         });
 
@@ -126,17 +130,31 @@ describe("ChronoStampFactory Contract", function () {
             
             // Key point: addr2 (also not the owner) tries to create a badge
             await expect(
-                factory.connect(addr2).createNewBadge(baseTokenURI, trustedSigner.address)
+                factory.connect(addr2).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address)
             ).to.be.revertedWith("Only the owner can create new badges");
         });
     });
 
     // --- Fourth test case: Input Validation ---
     describe("Input Validation", function () {
+        it("Should revert with empty name", async function () {
+            // Attempt to create badge with empty name
+            await expect(
+                factory.createNewBadge("", "TB", "https://api.example.com/metadata", trustedSigner.address)
+            ).to.be.revertedWith("Name cannot be empty");
+        });
+
+        it("Should revert with empty symbol", async function () {
+            // Attempt to create badge with empty symbol
+            await expect(
+                factory.createNewBadge("Test Badge", "", "https://api.example.com/metadata", trustedSigner.address)
+            ).to.be.revertedWith("Symbol cannot be empty");
+        });
+
         it("Should revert with empty baseTokenURI", async function () {
             // Attempt to create badge with empty URI
             await expect(
-                factory.createNewBadge("", trustedSigner.address)
+                factory.createNewBadge("Test Badge", "TB", "", trustedSigner.address)
             ).to.be.revertedWith("Base token URI cannot be empty");
         });
 
@@ -145,15 +163,15 @@ describe("ChronoStampFactory Contract", function () {
             
             // Attempt to create badge with zero address as trusted signer
             await expect(
-                factory.createNewBadge(baseTokenURI, ethers.ZeroAddress)
+                factory.createNewBadge("Test Badge", "TB", baseTokenURI, ethers.ZeroAddress)
             ).to.be.revertedWith("Trusted signer address cannot be zero");
         });
 
-        it("Should revert with both invalid parameters", async function () {
-            // Attempt to create badge with both empty URI and zero address
+        it("Should revert with multiple invalid parameters", async function () {
+            // Attempt to create badge with multiple invalid parameters
             await expect(
-                factory.createNewBadge("", ethers.ZeroAddress)
-            ).to.be.revertedWith("Base token URI cannot be empty");
+                factory.createNewBadge("", "", "", ethers.ZeroAddress)
+            ).to.be.revertedWith("Name cannot be empty");
         });
     });
 
@@ -162,6 +180,8 @@ describe("ChronoStampFactory Contract", function () {
         beforeEach(async function () {
             for (let i = 1; i <= 5; i++) {
                 await factory.createNewBadge(
+                    `Badge ${i}`,
+                    `B${i}`,
                     `https://api.example.com/metadata/${i}`,
                     trustedSigner.address
                 );
