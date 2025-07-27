@@ -5,6 +5,7 @@ import "./ChronoStamp.sol";
 
 contract ChronoStampFactory {
     address public owner;
+    address[] public deployedBadges;
 
     // To notify frontend when a new badge is created
     event BadgeCreated(address indexed badgeAddress);
@@ -41,5 +42,34 @@ contract ChronoStampFactory {
 
     // Return the address of the newly created badge contract
     return address(badge);
+    }
+
+    /**
+     * @dev Returns the total number of deployed badge contracts
+     */
+    function getTotalBadges() external view returns (uint256) {
+        return deployedBadges.length;
+    }
+
+    /**
+     * @dev Returns a paginated list of deployed badge contract addresses
+     * @param offset Starting index in the deployedBadges array
+     * @param limit Maximum number of addresses to return
+     */
+    function getBadgesPaginated(uint256 offset, uint256 limit) external view returns (address[] memory) {
+        uint256 total = deployedBadges.length;
+        if (offset >= total) {
+            return new address[](0);
+        }
+        uint256 end = offset + limit;
+        if (end > total) {
+            end = total;
+        }
+        uint256 size = end - offset;
+        address[] memory list = new address[](size);
+        for (uint256 i = 0; i < size; i++) {
+            list[i] = deployedBadges[offset + i];
+        }
+        return list;
     }
 }
