@@ -13,10 +13,10 @@ async function main() {
 
   // --- First Interaction: Create a new badge using the factory after deployment ---
   console.log("\nAttempting to create a new badge via the factory...");
-  
+
   // Prepare parameters for creating a new badge
-  // NEXT_PUBLIC_SIGNER_ADDRESS_DEV="0x97B9b83C47280C20F1AF90FAfF81bcb2320D9d28"
-  const trustedSignerForBadge = "0x97B9b83C47280C20F1AF90FAfF81bcb2320D9d28"; // Example trusted signer address
+  // NEXT_PUBLIC_SIGNER_ADDRESS_PROD="0xCf29E1e0BA114C8D1d9d8D566f68e4eD52429f55"
+  const trustedSignerForBadge = "0xCf29E1e0BA114C8D1d9d8D566f68e4eD52429f55"; // Example trusted signer address
   const baseURIForBadge = "ipfs://your-cid-prefix-for-badge-1"; // Example URI
 
   // Call the factory function to create a new badge
@@ -27,17 +27,24 @@ async function main() {
     trustedSignerForBadge
   );
 
-  // Wait for the transaction to be mined and get the event
+  // Wait for the transaction to be mined
   const receipt = await createTx.wait();
 
-  // Parse the event from the transaction receipt to get the new contract address
-  const badgeCreatedEvent = receipt.logs.find(e => e.eventName === 'BadgeCreated');
+  // In Ethers v6, call receipt.getLogs() to get the array of parsed events.
+  // Then, you can find your event by its name.
+  const badgeCreatedEvent = receipt.getLogs().find(e => e.eventName === 'BadgeCreated');
+
   if (badgeCreatedEvent) {
-      const newBadgeAddress = badgeCreatedEvent.args[1];
-      console.log(`Successfully created a new ChronoStamp badge at address: ${newBadgeAddress}`);
+    // Accessing arguments by name is safer and more readable than by index.
+    // Assuming your event is: event BadgeCreated(address indexed creator, address badgeAddress);
+    const newBadgeAddress = badgeCreatedEvent.args.badgeAddress;
+    // const newBadgeAddress = badgeCreatedEvent.args[1]; // This also works but is less clear
+
+    console.log(`Successfully created a new ChronoStamp badge at address: ${newBadgeAddress}`);
   } else {
-      console.error("Could not find BadgeCreated event in transaction logs.");
+    console.error("Could not find BadgeCreated event in transaction logs.");
   }
+
 }
 
 main().catch((error) => {
