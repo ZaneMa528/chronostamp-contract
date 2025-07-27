@@ -26,7 +26,7 @@ describe("ChronoStamp Contract", function () {
         const initialOwner = owner.address;
         const signerAddress = trustedSigner.address;
         const baseURI = "https://api.example.com/meta";
-        
+
         chronoStamp = await ChronoStamp.deploy(name, symbol, initialOwner, signerAddress, baseURI);
         // Wait for the deployment to complete
         // v5: await chronoStamp.deployed();
@@ -50,7 +50,7 @@ describe("ChronoStamp Contract", function () {
 
     // --- Second test case: Core Functionality ---
     describe("Claiming a Badge", function () {
-        
+
         it("Should allow a user to claim a badge with a valid signature", async function () {
             // --- 1. Prepare the signature ---
             // This is the most critical step in the test: simulating the off-chain service's signing process within the test script
@@ -120,7 +120,7 @@ describe("ChronoStamp Contract", function () {
                 chronoStamp.connect(user1).claim(signature, nonce)
             ).to.be.revertedWith("ChronoStamp: Invalid signature");
         });
-        
+
         it("Should revert if a signature for user1 is used by user2", async function () {
             const nonce = ethers.randomBytes(32);
 

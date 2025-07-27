@@ -11,7 +11,6 @@ import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "./interfaces/IChronoStamp.sol";
 
 contract ChronoStamp is ERC721, Ownable, IChronoStamp {
-    
     // State variables
     address public immutable trustedSigner;
 
@@ -36,7 +35,7 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
      * @param _trustedSigner The address of the trusted signer.
      * @param _baseTokenURI The base URI for the token metadata.
      */
-     constructor(
+    constructor(
         string memory _name,
         string memory _symbol,
         address _initialOwner,
@@ -53,7 +52,9 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
     /**
      * @dev return the token URI for a given token ID.
      */
-    function tokenURI(uint256 tokenId) public view override(ERC721, IChronoStamp) returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override(ERC721, IChronoStamp) returns (string memory) {
         // Ensure the token exists
         _requireOwned(tokenId);
         // Return the full token URI
@@ -78,7 +79,9 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         bytes32 messageHash = keccak256(abi.encodePacked(msg.sender, nonce));
 
         // Add the Ethereum signed message prefix to the message hash
-        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(messageHash);
+        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(
+            messageHash
+        );
         // Recover the signer address using the prefixed message hash
         address signer = ECDSA.recover(ethSignedMessageHash, signature);
 
@@ -98,5 +101,4 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         // Convert uint256 to string using OpenZeppelin's Strings library
         return Strings.toString(value);
     }
-    
 }

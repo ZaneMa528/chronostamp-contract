@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 interface IChronoStampFactory {
     // Events
-    event BadgeCreated(address indexed badgeAddress);
+    event BadgeCreated(address indexed creator, address indexed badgeAddress);
 
     // Functions
     function createNewBadge(
@@ -15,5 +15,8 @@ interface IChronoStampFactory {
 
     function getTotalBadges() external view returns (uint256);
 
-    function getBadgesPaginated(uint256 offset, uint256 limit) external view returns (address[] memory);
+    function getBadgesPaginated(
+        uint256 offset,
+        uint256 limit
+    ) external view returns (address[] memory);
 }
