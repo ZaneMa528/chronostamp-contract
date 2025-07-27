@@ -82,7 +82,7 @@ describe("ChronoStampFactory Contract", function () {
             const badgeCreatedEvent = receipt.logs.find(
                 log => log.fragment && log.fragment.name === 'BadgeCreated'
             );
-            const badgeAddress = badgeCreatedEvent.args[0];
+            const badgeAddress = badgeCreatedEvent.args[1];
 
             // --- 3. Connect to the created ChronoStamp contract and verify its parameters ---
             const ChronoStamp = await ethers.getContractFactory("ChronoStamp");
@@ -120,9 +120,13 @@ describe("ChronoStampFactory Contract", function () {
             const baseTokenURI = "https://api.example.com/metadata";
             
             // Key point: addr1 (not the owner) tries to create a badge
+            // Check for the specific custom error from the Ownable contract
             await expect(
                 factory.connect(addr1).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address)
-            ).to.be.revertedWith("Only the owner can create new badges");
+            ).to.be.revertedWithCustomError(
+                factory, // The contract instance where the error is defined
+                "OwnableUnauthorizedAccount" // The name of the custom error
+            ).withArgs(addr1.address); // Optional: Checks that the error includes the correct caller's address
         });
 
         it("Should revert when another non-owner tries to create badge", async function () {
@@ -131,7 +135,10 @@ describe("ChronoStampFactory Contract", function () {
             // Key point: addr2 (also not the owner) tries to create a badge
             await expect(
                 factory.connect(addr2).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address)
-            ).to.be.revertedWith("Only the owner can create new badges");
+            ).to.be.revertedWithCustomError(
+                factory, // The contract instance where the error is defined
+                "OwnableUnauthorizedAccount" // The name of the custom error
+            ).withArgs(addr2.address); // Optional: Checks that the error includes the correct caller's address
         });
     });
 
