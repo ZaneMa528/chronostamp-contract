@@ -2,13 +2,11 @@
 pragma solidity ^0.8.28;
 
 import "./ChronoStamp.sol";
+import "./interfaces/IChronoStampFactory.sol";
 
-contract ChronoStampFactory {
+contract ChronoStampFactory is IChronoStampFactory {
     address public owner;
     address[] public deployedBadges;
-
-    // To notify frontend when a new badge is created
-    event BadgeCreated(address indexed badgeAddress);
 
     constructor() {
         owner = msg.sender;
@@ -35,10 +33,11 @@ contract ChronoStampFactory {
         baseTokenURI
     );
 
+    // Add the new badge to the deployed badges array
+    deployedBadges.push(address(badge));
+
     // emit event to notify frontend
     emit BadgeCreated(address(badge));
-
-    // TO DO: let Person D manage the badge array
 
     // Return the address of the newly created badge contract
     return address(badge);
