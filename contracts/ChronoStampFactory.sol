@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 import "./ChronoStamp.sol";
-import "./interfaces/IChronoStampFactory.sol";
 
-contract ChronoStampFactory is IChronoStampFactory {
+contract ChronoStampFactory {
     address public owner;
 
     // To notify frontend when a new badge is created
@@ -22,29 +21,25 @@ contract ChronoStampFactory is IChronoStampFactory {
         string memory baseTokenURI,
         address trustedSigner
     ) public returns (address) {
-        require(msg.sender == owner, "Only the owner can create new badges");
-        require(bytes(baseTokenURI).length > 0, "Base token URI cannot be empty");
-        require(trustedSigner != address(0), "Trusted signer address cannot be zero");
+    require(msg.sender == owner, "Only the owner can create new badges");
+    require(bytes(baseTokenURI).length > 0, "Base token URI cannot be empty");
+    require(trustedSigner != address(0), "Trusted signer address cannot be zero");
 
-        // Define name and symbol (could later be extended as parameters)
-        string memory name = "ChronoStamp";
-        string memory symbol = "CS";
+    // Deploy a new ChronoStamp contract
+    ChronoStamp badge = new ChronoStamp(
+        "ChronoStamp Badge",
+        "CSB",
+        msg.sender, // Initial owner is the factory creator
+        trustedSigner,
+        baseTokenURI
+    );
 
-        // Deploy a new ChronoStamp contract
-        ChronoStamp badge = new ChronoStamp(
-            name,
-            symbol,
-            msg.sender,
-            trustedSigner,
-            baseTokenURI
-        );
+    // emit event to notify frontend
+    emit BadgeCreated(address(badge));
 
-        // Emit event to notify frontend
-        emit BadgeCreated(address(badge));
+    // TO DO: let Person D manage the badge array
 
-        // TO DO: let Person D manage the badge array
-
-        // Return the address of the newly created badge contract
-        return address(badge);
+    // Return the address of the newly created badge contract
+    return address(badge);
     }
 }
