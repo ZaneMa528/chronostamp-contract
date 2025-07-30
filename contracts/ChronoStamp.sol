@@ -50,6 +50,7 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
 
     /**
      * @dev return the token URI for a given token ID.
+     * @notice All tokens return the same URI (POAP design - all badges from same event share metadata)
      */
     function tokenURI(
         uint256 tokenId
