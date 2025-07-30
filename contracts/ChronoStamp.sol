@@ -4,7 +4,6 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 // IChronoStamp.sol
@@ -58,7 +57,7 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         // Ensure the token exists
         _requireOwned(tokenId);
         // Return the full token URI
-        return string(abi.encodePacked(baseTokenURI, "/", _toString(tokenId)));
+        return baseTokenURI;
     }
 
     // -------Claim Function-------
@@ -97,8 +96,4 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         emit BadgeClaimed(msg.sender, tokenIdToMint);
     }
 
-    function _toString(uint256 value) internal pure returns (string memory) {
-        // Convert uint256 to string using OpenZeppelin's Strings library
-        return Strings.toString(value);
-    }
 }

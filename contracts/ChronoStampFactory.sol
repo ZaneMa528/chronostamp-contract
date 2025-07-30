@@ -23,7 +23,7 @@ contract ChronoStampFactory is IChronoStampFactory, Ownable {
         string memory symbol,
         string memory baseTokenURI,
         address trustedSigner
-    ) external onlyOwner returns (address) {
+    ) external returns (address) {
         require(bytes(name).length > 0, "Name cannot be empty");
         require(bytes(symbol).length > 0, "Symbol cannot be empty");
         require(
