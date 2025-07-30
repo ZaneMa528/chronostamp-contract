@@ -32,7 +32,7 @@ async function main() {
 
   // In Ethers v6, call receipt.getLogs() to get the array of parsed events.
   // Then, you can find your event by its name.
-  const badgeCreatedEvent = receipt.getLogs().find(e => e.eventName === 'BadgeCreated');
+  const badgeCreatedEvent = receipt.logs.find(log => log.fragment && log.fragment.name === 'BadgeCreated');
 
   if (badgeCreatedEvent) {
     // Accessing arguments by name is safer and more readable than by index.
