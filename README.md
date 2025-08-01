@@ -9,5 +9,7 @@ npx hardhat help
 npx hardhat test
 REPORT_GAS=true npx hardhat test
 npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
+npx hardhat ignition deploy ./ignition/modules/ChronoStamp.js
 ```
+
+## NEXT_PUBLIC_SIGNER_ADDRESS_PROD="0xCf29E1e0BA114C8D1d9d8D566f68e4eD52429f55"

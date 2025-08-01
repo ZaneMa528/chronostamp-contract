@@ -1,16 +1,15 @@
-// SPDX-License-Identifier: No License
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 // IChronoStamp.sol
 import "./interfaces/IChronoStamp.sol";
 
 contract ChronoStamp is ERC721, Ownable, IChronoStamp {
-    
     // State variables
     address public immutable trustedSigner;
 
@@ -35,7 +34,7 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
      * @param _trustedSigner The address of the trusted signer.
      * @param _baseTokenURI The base URI for the token metadata.
      */
-     constructor(
+    constructor(
         string memory _name,
         string memory _symbol,
         address _initialOwner,
@@ -51,12 +50,15 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
 
     /**
      * @dev return the token URI for a given token ID.
+     * @notice All tokens return the same URI (POAP design - all badges from same event share metadata)
      */
-    function tokenURI(uint256 tokenId) public view override(ERC721, IChronoStamp) returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override(ERC721, IChronoStamp) returns (string memory) {
         // Ensure the token exists
         _requireOwned(tokenId);
         // Return the full token URI
-        return string(abi.encodePacked(baseTokenURI, "/", _toString(tokenId)));
+        return baseTokenURI;
     }
 
     // -------Claim Function-------
@@ -76,9 +78,12 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         // Format: keccak256(abi.encodePacked(msg.sender, nonce))
         bytes32 messageHash = keccak256(abi.encodePacked(msg.sender, nonce));
 
-        // The 'recover' function now handles the Eth-signing prefix internally.
-        // We pass the original messageHash directly.
-        address signer = ECDSA.recover(messageHash, signature);
+        // Add the Ethereum signed message prefix to the message hash
+        bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(
+            messageHash
+        );
+        // Recover the signer address using the prefixed message hash
+        address signer = ECDSA.recover(ethSignedMessageHash, signature);
 
         // Ensure the signer is the trusted signer
         require(signer == trustedSigner, "ChronoStamp: Invalid signature");
@@ -92,9 +97,4 @@ contract ChronoStamp is ERC721, Ownable, IChronoStamp {
         emit BadgeClaimed(msg.sender, tokenIdToMint);
     }
 
-    function _toString(uint256 value) internal pure returns (string memory) {
-        // Convert uint256 to string using OpenZeppelin's Strings library
-        return Strings.toString(value);
-    }
-    
 }
