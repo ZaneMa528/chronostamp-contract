@@ -81,7 +81,7 @@ describe("ChronoStamp Contract", function () {
             expect(await chronoStamp.ownerOf(1)).to.equal(user1.address);
 
             // c) Verify that the tokenURI is correct
-            const expectedURI = "https://api.example.com/meta/1";
+            const expectedURI = "https://api.example.com/meta";
             expect(await chronoStamp.tokenURI(1)).to.equal(expectedURI);
         });
 

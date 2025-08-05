@@ -116,29 +116,32 @@ describe("ChronoStampFactory Contract", function () {
 
     // --- Third test case: Access Control ---
     describe("Access Control", function () {
-        it("Should revert when non-owner tries to create badge", async function () {
+        it("Should allow any user to create a badge", async function () {
             const baseTokenURI = "https://api.example.com/metadata";
             
-            // Key point: addr1 (not the owner) tries to create a badge
-            // Check for the specific custom error from the Ownable contract
-            await expect(
-                factory.connect(addr1).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address)
-            ).to.be.revertedWithCustomError(
-                factory, // The contract instance where the error is defined
-                "OwnableUnauthorizedAccount" // The name of the custom error
-            ).withArgs(addr1.address); // Optional: Checks that the error includes the correct caller's address
+            // Anyone can create a badge now since onlyOwner modifier was removed
+            const createTx = factory.connect(addr1).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address);
+
+            // Verify that the event was emitted correctly
+            await expect(createTx)
+                .to.emit(factory, "BadgeCreated");
+
+            // Verify that total badges count increased
+            expect(await factory.getTotalBadges()).to.equal(1);
         });
 
-        it("Should revert when another non-owner tries to create badge", async function () {
+        it("Should allow another user to create a badge", async function () {
             const baseTokenURI = "https://api.example.com/metadata";
             
-            // Key point: addr2 (also not the owner) tries to create a badge
-            await expect(
-                factory.connect(addr2).createNewBadge("Test", "T", baseTokenURI, trustedSigner.address)
-            ).to.be.revertedWithCustomError(
-                factory, // The contract instance where the error is defined
-                "OwnableUnauthorizedAccount" // The name of the custom error
-            ).withArgs(addr2.address); // Optional: Checks that the error includes the correct caller's address
+            // addr2 can also create a badge
+            const createTx = factory.connect(addr2).createNewBadge("Test 2", "T2", baseTokenURI, trustedSigner.address);
+
+            // Verify that the event was emitted correctly
+            await expect(createTx)
+                .to.emit(factory, "BadgeCreated");
+
+            // Verify that total badges count increased
+            expect(await factory.getTotalBadges()).to.equal(1);
         });
     });
 
