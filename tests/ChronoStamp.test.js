@@ -81,10 +81,60 @@ describe("ChronoStamp Contract", function () {
             expect(await chronoStamp.ownerOf(1)).to.equal(user1.address);
 
             // c) Verify that the tokenURI is correct
-            const expectedURI = "https://api.example.com/meta/1";
+            const expectedURI = "https://api.example.com/meta";
             expect(await chronoStamp.tokenURI(1)).to.equal(expectedURI);
         });
 
+        it("Should allow multiple users to claim badges", async function () {
+            // user1 claims first badge
+            const nonce1 = ethers.randomBytes(32);
+            const messageHash1 = ethers.solidityPackedKeccak256(['address', 'bytes32'], [user1.address, nonce1]);
+            const signature1 = await trustedSigner.signMessage(ethers.getBytes(messageHash1));
+            
+            await chronoStamp.connect(user1).claim(signature1, nonce1);
+            expect(await chronoStamp.balanceOf(user1.address)).to.equal(1);
+            expect(await chronoStamp.ownerOf(1)).to.equal(user1.address);
+
+            // user2 claims second badge
+            const nonce2 = ethers.randomBytes(32);
+            const messageHash2 = ethers.solidityPackedKeccak256(['address', 'bytes32'], [user2.address, nonce2]);
+            const signature2 = await trustedSigner.signMessage(ethers.getBytes(messageHash2));
+            
+            await chronoStamp.connect(user2).claim(signature2, nonce2);
+            expect(await chronoStamp.balanceOf(user2.address)).to.equal(1);
+            expect(await chronoStamp.ownerOf(2)).to.equal(user2.address);
+        });
+
+        it("Should allow same user to claim multiple badges with different nonces", async function () {
+            // user1 claims first badge
+            const nonce1 = ethers.randomBytes(32);
+            const messageHash1 = ethers.solidityPackedKeccak256(['address', 'bytes32'], [user1.address, nonce1]);
+            const signature1 = await trustedSigner.signMessage(ethers.getBytes(messageHash1));
+            
+            await chronoStamp.connect(user1).claim(signature1, nonce1);
+            expect(await chronoStamp.balanceOf(user1.address)).to.equal(1);
+            expect(await chronoStamp.ownerOf(1)).to.equal(user1.address);
+
+            // user1 claims second badge with different nonce
+            const nonce2 = ethers.randomBytes(32);
+            const messageHash2 = ethers.solidityPackedKeccak256(['address', 'bytes32'], [user1.address, nonce2]);
+            const signature2 = await trustedSigner.signMessage(ethers.getBytes(messageHash2));
+            
+            await chronoStamp.connect(user1).claim(signature2, nonce2);
+            expect(await chronoStamp.balanceOf(user1.address)).to.equal(2);
+            expect(await chronoStamp.ownerOf(2)).to.equal(user1.address);
+        });
+
+    });
+
+    // --- Edge Cases ---
+    describe("Edge Cases", function () {
+        it("Should revert when querying tokenURI for non-existent token", async function () {
+            // Try to get tokenURI for token that doesn't exist
+            await expect(
+                chronoStamp.tokenURI(999)
+            ).to.be.revertedWithCustomError(chronoStamp, "ERC721NonexistentToken");
+        });
     });
 
     // --- Third test case: Error Handling ---
